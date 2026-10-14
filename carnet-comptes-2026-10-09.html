@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carnet de comptes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--bg:#eef2f4;--surface:#fff;--ink:#17252b;--muted:#5b6b73;--line:#d3dde2;--in:#0f6b4f;--out:#b3382c;--accent:#1d4e89;--onaccent:#fff;--pend:#ffe9a8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a1e;--surface:#1a252a;--ink:#e8eef0;--muted:#9aabb3;--line:#2c3b42;--in:#4cc29b;--out:#ff8a7a;--accent:#7db3ee;--onaccent:#0c1a26;--pend:#5a4608}}
+:root[data-theme="dark"]{--bg:#121a1e;--surface:#1a252a;--ink:#e8eef0;--muted:#9aabb3;--line:#2c3b42;--in:#4cc29b;--out:#ff8a7a;--accent:#7db3ee;--onaccent:#0c1a26;--pend:#5a4608}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:560px;margin:0 auto;padding:16px}
+h1{font-size:1.1rem;margin:0 0 4px;color:var(--muted);font-weight:400}
+.solde{font-size:2.6rem;font-weight:700;line-height:1.1;margin:0 0 4px;font-variant-numeric:tabular-nums}
+.sub{color:var(--muted);font-size:.95rem;margin:0 0 20px}
+.sub button{all:unset;color:var(--accent);text-decoration:underline;cursor:pointer}
+.sub button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+form{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:grid;gap:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--ink);font:inherit;font-weight:700;padding:12px;cursor:pointer}
+.seg button[aria-pressed="true"].d{background:var(--out);color:#fff}
+.seg button[aria-pressed="true"].r{background:var(--in);color:#fff}
+:root[data-x] .seg button[aria-pressed="true"].r{color:#fff}
+label{display:grid;gap:4px;font-size:.95rem;color:var(--muted)}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:12px;width:100%}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.add{font:inherit;font-weight:700;background:var(--accent);color:var(--onaccent);border:0;border-radius:10px;padding:14px;cursor:pointer}
+.err{color:var(--out);font-size:.95rem;min-height:1.2em;margin:0}
+.bar{display:flex;justify-content:space-between;align-items:end;gap:12px;margin:28px 0 8px}
+.bar h2{font-size:1.2rem;margin:0}
+.bar select{width:auto;padding:8px 10px}
+.tot{display:flex;flex-wrap:wrap;gap:4px 16px;font-variant-numeric:tabular-nums;margin:0 0 8px;font-size:.95rem;color:var(--muted)}
+.tot b.in{color:var(--in)}.tot b.out{color:var(--out)}
+ul{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:12px 16px;border-top:1px solid var(--line)}
+li:first-child{border-top:0}
+.lib{font-weight:700;overflow-wrap:anywhere}
+.amt{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.amt.r{color:var(--in)}.amt.d{color:var(--out)}
+.date{grid-column:1/-1;color:var(--muted);font-size:.9rem}
+.del{all:unset;justify-self:end;color:var(--muted);font-size:.9rem;text-decoration:underline;cursor:pointer}
+.vide{padding:20px 16px;color:var(--muted);text-align:center}
+.tools{display:flex;gap:16px;margin:16px 0 8px;font-size:.95rem}
+.tools button{all:unset;color:var(--accent);text-decoration:underline;cursor:pointer}
+.note{color:var(--muted);font-size:.85rem;margin:8px 0 24px}
+[hidden]{display:none!important}
+.lock{position:fixed;inset:0;z-index:10;background:var(--bg);display:grid;place-items:center;padding:16px;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.lockbox{width:100%;max-width:320px;display:grid;gap:12px;text-align:center}
+.lockbox h2{margin:0;font-size:1.4rem}
+.lockbox .sub{margin:0}
+#pin{text-align:center;font-size:2rem;letter-spacing:.6em;padding:12px 12px 12px calc(12px + .6em)}
+.lockbox .lien{all:unset;color:var(--accent);text-decoration:underline;cursor:pointer;font-size:.95rem}
+.lockbox .lien:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.acts{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:0 24px;justify-self:start}
+.acts .mod{color:var(--accent)}
+#annuleEd{all:unset;color:var(--accent);text-decoration:underline;cursor:pointer;text-align:center;font-size:.95rem}
+#annuleEd:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+form.edit{border:2px solid var(--accent)}
+.acts .del{padding:8px 0;font-size:1rem}
+.mt{display:flex;gap:8px}
+.mt button{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:0 14px;cursor:pointer}
+.mt button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#dlg{z-index:20}
+.dlgm{font-size:1.15rem;margin:0;overflow-wrap:anywhere}
+textarea{font:inherit;font-size:.85rem;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:12px;width:100%}
+textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.seg4{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--line);border-radius:10px;overflow:hidden}
+.seg4 button{border:0;border-left:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;font-weight:700;padding:12px 4px;cursor:pointer}
+.seg4 button:first-child{border-left:0}
+.seg4.seg2{grid-template-columns:1fr 1fr}
+.tot2{font-size:.95rem;color:var(--muted);white-space:pre-line;margin:0 0 8px;font-variant-numeric:tabular-nums}
+.seg4 button[aria-pressed="true"]{background:var(--accent);color:var(--onaccent)}
+.plbl{font-size:.95rem;color:var(--muted);margin:0 0 -6px}
+.amt.pend{background:var(--pend);border-radius:6px;padding:0 6px;animation:clig 1.2s steps(1,end) infinite}
+@keyframes clig{0%{opacity:1}50%{opacity:.1}}
+.recu{grid-column:1/-1;font:inherit;font-weight:700;background:transparent;color:var(--ink);border:2px solid var(--accent);border-radius:10px;padding:10px;cursor:pointer;margin-top:6px}
+.recu:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.att{color:var(--ink);font-weight:700;margin-top:-12px}
+.att button{all:unset;color:var(--accent);text-decoration:underline;cursor:pointer;font-weight:400}
+.att button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="lock" id="lock">
+  <div class="lockbox">
+    <h2 id="lockT">Code d'accès</h2>
+    <p class="sub" id="lockD"></p>
+    <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Code à 4 chiffres">
+    <p class="err" id="lockE" role="alert"></p>
+    <button class="add" id="lockB" type="button">Déverrouiller</button>
+    <button class="lien" id="oubli" type="button">Code oublié ?</button>
+    <button class="lien" id="annule" type="button" hidden>Annuler</button>
+  </div>
+</div>
+<div class="lock" id="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlgM">
+  <div class="lockbox">
+    <p class="dlgm" id="dlgM"></p>
+    <input id="dlgI" type="text" inputmode="decimal" autocomplete="off" hidden>
+    <textarea id="dlgA" rows="6" readonly hidden></textarea>
+    <p class="err" id="dlgE" role="alert"></p>
+    <button class="add" id="dlgOk" type="button">OK</button>
+    <button class="lien" id="dlgNo" type="button">Annuler</button>
+  </div>
+</div>
+<main id="app" hidden>
+  <h1>Solde du compte</h1>
+  <p class="solde" id="solde">0,00 €</p>
+  <p class="sub">Solde de départ : <span id="dep">0,00 €</span> <button id="chDep" type="button">modifier</button></p>
+  <p class="sub att" id="attente" hidden></p>
+
+  <form id="f" novalidate>
+    <p class="plbl" id="olbl">Opération</p>
+    <div class="seg" role="group" aria-labelledby="olbl">
+      <button type="button" class="d" id="bD" aria-pressed="true">Dépense</button>
+      <button type="button" class="r" id="bR" aria-pressed="false">Recette</button>
+    </div>
+    <p class="plbl" id="clbl">Catégorie</p>
+    <div class="seg4 seg2" id="catseg" role="group" aria-labelledby="clbl">
+      <button type="button" data-c="DEC" aria-pressed="false">DEC</button>
+      <button type="button" data-c="Autres" aria-pressed="false">Autres</button>
+    </div>
+    <p class="plbl" id="plbl">Paiement</p>
+    <div class="seg4" id="payseg" role="group" aria-labelledby="plbl">
+      <button type="button" data-p="ESP" aria-pressed="false" aria-label="Espèces">ESP</button>
+      <button type="button" data-p="CB" aria-pressed="true" aria-label="Carte bancaire">CB</button>
+      <button type="button" data-p="VIR" aria-pressed="false" aria-label="Virement">VIR</button>
+      <button type="button" data-p="CHQ" aria-pressed="false" aria-label="Chèque">CHQ</button>
+    </div>
+    <label>Libellé
+      <input id="lib" type="text" placeholder="Ex. : courses, salaire" autocomplete="off" maxlength="60">
+    </label>
+    <div class="row2">
+      <label>Montant (€)
+        <div class="mt"><input id="amt" type="text" inputmode="decimal" placeholder="0,00" autocomplete="off"><button type="button" id="signe" aria-label="Changer le signe du montant (positif ou négatif)">±</button></div>
+      </label>
+      <label>Date
+        <input id="dt" type="date">
+      </label>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+    <button class="add" id="ajoute" type="button">Ajouter l'opération</button>
+    <button id="annuleEd" type="button" hidden>Annuler la modification</button>
+  </form>
+
+  <div class="bar">
+    <h2>Opérations</h2>
+    <select id="mois" aria-label="Mois affiché"></select>
+  </div>
+  <p class="tot">Recettes <b class="in" id="tR">0,00 €</b> Dépenses <b class="out" id="tD">0,00 €</b></p>
+  <p class="tot2" id="tCat"></p>
+  <ul id="liste"></ul>
+
+  <div class="tools">
+    <button type="button" id="copDEC" data-k="DEC">Copier le tableau DEC</button>
+    <button type="button" id="copAut" data-k="Autres">Copier le tableau Autres</button>
+    <button type="button" id="copX" data-k="" hidden>Copier « à classer »</button>
+    <button type="button" id="chCode">Changer le code</button>
+  </div>
+  <p class="note">Les données restent enregistrées dans le navigateur de ce téléphone, et nulle part ailleurs. Vider les données du navigateur les efface : pensez à copier le tableau de temps en temps.</p>
+</main>
+
+<script>
+(function(){
+  var KEY="carnet-comptes-v1";
+  var S={depart:0,ops:[]};
+  try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&Array.isArray(p.ops)){S=p;S.depart=Number(S.depart)||0;}}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+  var $=function(i){return document.getElementById(i)};
+  var eur=new Intl.NumberFormat("fr-FR",{style:"currency",currency:"EUR"});
+  var type="d";
+  function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  $("dt").value=today();
+  var mois=today().slice(0,7);
+
+  function setType(t){type=t;$("bD").setAttribute("aria-pressed",t==="d");$("bR").setAttribute("aria-pressed",t==="r");}
+  $("bD").onclick=function(){setType("d")};
+  $("bR").onclick=function(){setType("r")};
+  var cat="";
+  function setCat(c){cat=c;Array.prototype.forEach.call(document.querySelectorAll("#catseg button"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-c")===c)});}
+  Array.prototype.forEach.call(document.querySelectorAll("#catseg button"),function(b){b.onclick=function(){setCat(b.getAttribute("data-c"))};});
+  var pay="CB";
+  function setPay(p){pay=p;Array.prototype.forEach.call(document.querySelectorAll("#payseg button"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-p")===p)});}
+  Array.prototype.forEach.call(document.querySelectorAll("#payseg button"),function(b){b.onclick=function(){setPay(b.getAttribute("data-p"))};});
+  function aControler(t,p){return t==="r"&&(p==="VIR"||p==="ESP");}
+  function enAttente(o){return aControler(o.type,o.pay)&&!o.verifie;}
+
+  function parse(s){var n=parseFloat(String(s).replace(/\s/g,"").replace(",","."));return isFinite(n)?Math.round(n*100)/100:NaN;}
+  function signed(o){return o.type==="r"?o.montant:-o.montant;}
+
+  function moisLabel(m){var a=m.split("-");var d=new Date(+a[0],+a[1]-1,1);var s=d.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});return s.charAt(0).toUpperCase()+s.slice(1);}
+
+  function render(){
+    var total=S.depart;S.ops.forEach(function(o){total+=signed(o)});
+    var s=$("solde");s.textContent=eur.format(total);s.style.color=total<0?"var(--out)":"var(--ink)";
+    $("dep").textContent=eur.format(S.depart);
+    var att=S.ops.filter(enAttente),at=$("attente");
+    if(att.length){
+      var sm=0;att.forEach(function(o){sm+=o.montant});
+      var old=att.slice().sort(function(a,b){return a.date<b.date?-1:1})[0];
+      at.hidden=false;at.textContent=att.length+(att.length>1?" recettes à vérifier (virements, espèces) : ":" recette à vérifier (virement, espèces) : ")+eur.format(sm)+" ";
+      var lk=document.createElement("button");lk.type="button";lk.textContent="voir";lk.onclick=function(){mois=old.date.slice(0,7);render();};at.appendChild(lk);
+    }else{at.hidden=true;at.textContent="";}
+
+    var set={};set[today().slice(0,7)]=1;S.ops.forEach(function(o){set[o.date.slice(0,7)]=1});
+    var ms=Object.keys(set).sort().reverse();
+    if(ms.indexOf(mois)<0)mois=ms[0];
+    $("mois").innerHTML=ms.map(function(m){return '<option value="'+m+'"'+(m===mois?" selected":"")+'>'+moisLabel(m)+'</option>'}).join("");
+
+    var vus=S.ops.filter(function(o){return o.date.slice(0,7)===mois}).sort(function(a,b){return a.date<b.date?1:a.date>b.date?-1:b.id-a.id});
+    var r=0,d=0;vus.forEach(function(o){if(o.type==="r")r+=o.montant;else d+=o.montant});
+    $("tR").textContent=eur.format(r);$("tD").textContent=eur.format(d);
+    var cs={DEC:{r:0,d:0},Autres:{r:0,d:0},x:{r:0,d:0}};
+    vus.forEach(function(o){var k=(o.cat==="DEC"||o.cat==="Autres")?o.cat:"x";cs[k][o.type]+=o.montant;});
+    var tl=["DEC : recettes "+eur.format(cs.DEC.r)+" · dépenses "+eur.format(cs.DEC.d),"Autres : recettes "+eur.format(cs.Autres.r)+" · dépenses "+eur.format(cs.Autres.d)];
+    if(cs.x.r||cs.x.d)tl.push("À classer : recettes "+eur.format(cs.x.r)+" · dépenses "+eur.format(cs.x.d));
+    $("tCat").textContent=tl.join("\n");
+    $("copX").hidden=!S.ops.some(function(o){return o.cat!=="DEC"&&o.cat!=="Autres"});
+
+    var ul=$("liste");ul.innerHTML="";
+    if(!vus.length){ul.innerHTML='<li class="vide" style="display:block">Aucune opération ce mois-ci. Ajoutez la première ci-dessus.</li>';return;}
+    vus.forEach(function(o){
+      var li=document.createElement("li");
+      var dd=new Date(o.date+"T12:00:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"});
+      var a=document.createElement("span");a.className="lib";a.textContent=o.libelle||"(sans libellé)";
+      var b=document.createElement("span");var sv=signed(o);b.className="amt "+(sv<0?"d":"r");b.textContent=(sv<0?"− ":"+ ")+eur.format(Math.abs(sv));if(enAttente(o))b.className+=" pend";
+      var c=document.createElement("span");c.className="date";c.textContent=dd+(o.cat?" · "+o.cat:" · à classer")+(o.pay?" · "+o.pay:"")+(enAttente(o)?" · à vérifier":"")+(aControler(o.type,o.pay)&&o.verifie?(o.pay==="ESP"?" · contrôlé ✓":" · reçu ✓"):"");
+      var x=document.createElement("button");x.className="del";x.type="button";x.textContent="Supprimer";
+      x.onclick=function(){dialogue({msg:"Supprimer « "+(o.libelle||"cette opération")+" » ?",ok:"Supprimer",cb:function(){S.ops=S.ops.filter(function(z){return z.id!==o.id});if(editId===o.id)resetForm();save();render();}});};
+      var y=document.createElement("button");y.className="del mod";y.type="button";y.textContent="Modifier";
+      y.onclick=function(){startEdit(o);};
+      var w=document.createElement("span");w.className="acts";w.appendChild(y);w.appendChild(x);
+      var rc=null;
+      if(aControler(o.type,o.pay)){
+        if(!o.verifie){rc=document.createElement("button");rc.className="recu";rc.type="button";rc.textContent=o.pay==="ESP"?"✓ Espèces contrôlées (arrêter le clignotement)":"✓ Virement reçu (arrêter le clignotement)";rc.onclick=function(){o.verifie=true;save();render();};}
+        else{var z=document.createElement("button");z.className="del";z.type="button";z.textContent="À revérifier";z.onclick=function(){o.verifie=false;save();render();};w.insertBefore(z,w.firstChild);}
+      }
+      li.appendChild(a);li.appendChild(b);li.appendChild(c);li.appendChild(w);if(rc)li.appendChild(rc);ul.appendChild(li);
+    });
+  }
+
+  var dlgCb=null;
+  function dialogue(o){
+    $("dlgM").textContent=o.msg;$("dlgOk").textContent=o.ok||"OK";$("dlgOk").hidden=!!o.sansOk;
+    $("dlgNo").textContent=o.sansOk?"Fermer":"Annuler";
+    $("dlgI").hidden=!o.champ;$("dlgI").value=o.valeur||"";
+    $("dlgA").hidden=!o.zone;$("dlgA").value=o.zone||"";
+    $("dlgE").textContent="";dlgCb=o.cb||null;$("dlg").hidden=false;
+    setTimeout(function(){if(o.champ){$("dlgI").focus();$("dlgI").select();}else if(o.zone){$("dlgA").focus();$("dlgA").select();}else{$("dlgNo").focus();}},50);
+  }
+  function fermer(){$("dlg").hidden=true;dlgCb=null;}
+  $("dlgNo").onclick=fermer;
+  $("dlgOk").onclick=function(){var cb=dlgCb;if(cb&&cb($("dlgI").value)===false)return;fermer();};
+  $("dlgI").addEventListener("keydown",function(e){if(e.key==="Enter")$("dlgOk").click();});
+  var editId=null;
+  function resetForm(){
+    editId=null;$("f").classList.remove("edit");
+    $("ajoute").textContent="Ajouter l'opération";$("annuleEd").hidden=true;
+    $("lib").value="";$("amt").value="";$("dt").value=today();$("err").textContent="";setType("d");setPay("CB");setCat("");
+  }
+  function startEdit(o){
+    editId=o.id;$("f").classList.add("edit");
+    setType(o.type);setPay(o.pay||"");setCat(o.cat||"");$("lib").value=o.libelle||"";$("amt").value=String(o.montant).replace(".",",");$("dt").value=o.date;
+    $("ajoute").textContent="Enregistrer la modification";$("annuleEd").hidden=false;$("err").textContent="";
+    $("f").scrollIntoView({behavior:"smooth",block:"start"});
+    setTimeout(function(){$("amt").focus()},300);
+  }
+  $("annuleEd").onclick=resetForm;
+  $("signe").onclick=function(){var v=$("amt").value.trim();$("amt").value=v.charAt(0)==="-"?v.slice(1):"-"+v;$("amt").focus();};
+
+  function ajouter(){
+    var m=parse($("amt").value),dt=$("dt").value;
+    if(isNaN(m)||m===0){$("err").textContent="Saisissez un montant, par exemple 12,50 ou -12,50.";$("amt").focus();return;}
+    if(!dt){$("err").textContent="Choisissez une date.";return;}
+    if(!cat){$("err").textContent="Choisissez la catégorie : DEC ou Autres.";return;}
+    $("err").textContent="";
+    if(editId!==null){
+      var cible=S.ops.filter(function(z){return z.id===editId})[0];
+      if(cible){var vr=aControler(type,pay),was=aControler(cible.type,cible.pay)&&cible.pay===pay;cible.verifie=vr?(was?!!cible.verifie:false):false;cible.type=type;cible.cat=cat;cible.pay=pay||undefined;cible.montant=m;cible.libelle=$("lib").value.trim();cible.date=dt;}
+      save();mois=dt.slice(0,7);resetForm();render();return;
+    }
+    S.ops.push({id:Date.now(),type:type,cat:cat,pay:pay,verifie:false,montant:m,libelle:$("lib").value.trim(),date:dt});
+    save();mois=dt.slice(0,7);
+    $("lib").value="";$("amt").value="";setCat("");render();$("lib").focus();
+  }
+  $("ajoute").onclick=ajouter;
+  $("f").addEventListener("submit",function(e){e.preventDefault();ajouter();});
+  ["lib","amt","dt"].forEach(function(id){$(id).addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();ajouter();}});});
+
+  $("mois").onchange=function(){mois=this.value;render();};
+
+  $("chDep").onclick=function(){
+    dialogue({msg:"Solde de départ du compte (en €) :",champ:true,valeur:String(S.depart).replace(".",","),ok:"Enregistrer",cb:function(v){
+      var n=parse(v);
+      if(isNaN(n)){$("dlgE").textContent="Montant non reconnu. Exemple : 1250,40";return false;}
+      S.depart=n;save();render();
+    }});
+  };
+
+  function copie(btn){
+    var k=btn.getAttribute("data-k"),lab=btn.textContent;
+    var L=["Date;Type;Catégorie;Paiement;Libellé;Montant;Contrôle"];
+    S.ops.filter(function(o){return k?o.cat===k:(o.cat!=="DEC"&&o.cat!=="Autres")}).sort(function(a,b){return a.date<b.date?-1:1}).forEach(function(o){
+      L.push([o.date,o.type==="r"?"Recette":"Dépense",o.cat||"",o.pay||"",'"'+(o.libelle||"").replace(/"/g,'""')+'"',String(signed(o)).replace(".",","),aControler(o.type,o.pay)?(o.verifie?(o.pay==="ESP"?"contrôlé":"reçu"):"à vérifier"):""].join(";"));
+    });
+    var t=L.join("\n");
+    function ok(){btn.textContent="Copié !";setTimeout(function(){btn.textContent=lab},2000);}
+    function sec(){dialogue({msg:"La copie automatique n'est pas possible ici. Le texte est sélectionné : copiez-le avec l'appui long.",zone:t,sansOk:true});}
+    try{navigator.clipboard.writeText(t).then(ok,sec);}catch(e){sec();}
+  }
+  ["copDEC","copAut","copX"].forEach(function(id){$(id).onclick=function(){copie(this)};});
+
+  /* ---- Code d'accès ---- */
+  var PK="carnet-comptes-pin",mode="enter",tmp="",fromChange=false,hiddenAt=0;
+  function getPin(){try{return localStorage.getItem(PK)}catch(e){return null}}
+  function hash(p){
+    try{if(window.crypto&&crypto.subtle){return crypto.subtle.digest("SHA-256",new TextEncoder().encode("carnet:"+p)).then(function(b){return Array.prototype.map.call(new Uint8Array(b),function(x){return x.toString(16).padStart(2,"0")}).join("")});}}catch(e){}
+    return Promise.resolve("p:"+p);
+  }
+  var TXT={
+    enter:["Code d'accès","Saisissez votre code à 4 chiffres.","Déverrouiller"],
+    new1:["Choisir un code","Choisissez un code à 4 chiffres.","Continuer"],
+    new2:["Confirmer le code","Saisissez le même code une seconde fois.","Enregistrer le code"]
+  };
+  function showLock(m){
+    mode=m;var t=TXT[m];
+    $("lockT").textContent=t[0];$("lockD").textContent=t[1];$("lockB").textContent=t[2];
+    $("oubli").hidden=(m!=="enter");$("annule").hidden=!(fromChange&&m!=="enter");
+    $("lockE").textContent="";$("pin").value="";
+    $("lock").hidden=false;$("app").hidden=true;
+    setTimeout(function(){$("pin").focus()},50);
+  }
+  function unlock(){$("lock").hidden=true;$("app").hidden=false;$("pin").value="";fromChange=false;}
+  function valider(){
+    var v=$("pin").value;
+    if(!/^\d{4}$/.test(v)){$("lockE").textContent="Le code comporte exactement 4 chiffres.";return;}
+    if(mode==="enter"){
+      hash(v).then(function(h){
+        if(h===getPin()){unlock();}
+        else{$("lockE").textContent="Code incorrect. Essayez encore.";$("pin").value="";$("pin").focus();}
+      });
+    }else if(mode==="new1"){
+      tmp=v;showLock("new2");
+    }else{
+      if(v!==tmp){showLock("new1");$("lockE").textContent="Les deux codes sont différents. Recommencez.";return;}
+      hash(v).then(function(h){try{localStorage.setItem(PK,h)}catch(e){}unlock();});
+    }
+  }
+  $("pin").addEventListener("input",function(){this.value=this.value.replace(/\D/g,"").slice(0,4);$("lockE").textContent="";if(this.value.length===4)valider();});
+  $("pin").addEventListener("keydown",function(e){if(e.key==="Enter")valider();});
+  $("lockB").onclick=valider;
+  $("annule").onclick=unlock;
+  $("chCode").onclick=function(){fromChange=true;showLock("new1");};
+  $("oubli").onclick=function(){
+    dialogue({msg:"Réinitialiser le code efface tout le carnet (opérations et solde de départ). Continuer ?",ok:"Tout effacer",cb:function(){
+      try{localStorage.removeItem(PK);localStorage.removeItem(KEY);}catch(e){}
+      S={depart:0,ops:[]};render();fromChange=false;showLock("new1");
+    }});
+  };
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="hidden"){hiddenAt=Date.now();}
+    else if(hiddenAt&&Date.now()-hiddenAt>60000&&getPin()&&$("lock").hidden){showLock("enter");}
+  });
+
+  render();
+  showLock(getPin()?"enter":"new1");
+})();
+</script>
+</body>
+</html>
